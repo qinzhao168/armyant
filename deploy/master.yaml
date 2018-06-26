@@ -53,8 +53,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    service.beta.kubernetes.io/alicloud-loadbalancer-address-type: intranet
   name: armyant-master
   namespace: bizdev-test
 spec:
