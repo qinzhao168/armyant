@@ -1,0 +1,79 @@
+syntax = "proto3";
+package models;
+
+message Job {
+    string id = 1;
+    int64 connections = 2;
+    string method = 3;
+    string body = 4;
+    map<string, string> headers = 5;
+    int64 requests = 6;
+    string url = 7;
+    string duration = 8;
+    string historyId = 9;
+    string name = 10;
+    string master = 11;
+}
+
+message Stats {
+    Spec spec = 1;
+    Result result = 2;
+    string jobId = 3;
+    string historyId = 4;
+    string instancdId = 5;
+}
+
+message Spec {
+    int64 numberOfConnections = 1;
+    string testType = 2;
+    int64 numberOfRequests = 3;
+    string method = 4;
+    string url = 5;
+    string body = 6;
+    bool stream = 7;
+    int64 timeoutSeconds = 8;
+    string client = 9;
+}    
+
+message Result {
+    int64 bytesRead = 1;
+    int64 bytesWritten = 2;
+    float timeTakenSeconds = 3;
+    int64 req1xx = 4;
+    int64 req2xx = 5;
+    int64 req3xx = 6;
+    int64 req4xx = 7;
+    int64 req5xx = 8;
+    int64 others = 9;
+    Latency latency = 10;
+    Rps rps = 11;
+    Error error = 12;
+}
+
+message Error {
+    string description = 1;
+    int64 count = 2;
+}
+
+message Latency {
+    float mean = 1;
+    float stddev = 2;
+    float max = 3;
+    map<string, float> percentiles = 4;
+}
+
+message Rps {
+    float mean = 1;
+    float stddev = 2;
+    float max = 3;
+    map<string, float> percentiles = 4;
+}
+
+message Status {
+    int64 code = 1;
+}
+
+message JobResultResponse {
+  int64 code = 1;
+  map<string, float> result = 2;
+}

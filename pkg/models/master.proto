@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package models;
+
+message GetJobRequest {
+  string jobId = 1;
+  string instancdId = 2;
+}
+
+message ListJobRequest {
+}

@@ -1,0 +1,15 @@
+FROM golang:1.9.2-alpine3.7 as builder
+COPY . /go/src/github.com/yiqinguo/armyant
+WORKDIR /go/src/github.com/yiqinguo/armyant
+
+RUN go build -ldflags -w -o armyant master.go
+
+FROM alpine:3.7
+MAINTAINER 468894985@qq.com
+
+ENV REPO_ROOT="http://mirrors.ustc.edu.cn/alpine/v3.7" \
+	TIME_ZONE="Asia/Shanghai"
+
+WORKDIR /
+
+COPY --from=builder /go/src/github.com/yiqinguo/armyant/armyant .
