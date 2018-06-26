@@ -1,0 +1,97 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    application: armyant-master
+  name: armyant-master
+  namespace: armyant
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      application: armyant-master
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        application: armyant-master
+    spec:
+      serviceAccount: armyant
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: ruly-paas/group
+                operator: In
+                values:
+                - default
+      containers:
+      - name: armyant-master
+        command: ["./armyant"]
+        args: ["--grpc-port=50051", "--http-port=8080", "--storage=influxdb", "--influx-url=http://localhost:8086", "--influx-db=armyant"]
+        image: armyant-master:latest
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 2048Mi
+          requests:
+            cpu: 1000m
+            memory: 2048Mi
+        env:
+        - name: GOMAXPROCS
+          value: "1"
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.beta.kubernetes.io/alicloud-loadbalancer-address-type: intranet
+  name: armyant-master
+  namespace: bizdev-test
+spec:
+  ports:
+  - name: "grpc"
+    port: 50051
+    protocol: TCP
+    targetPort: 50051
+  selector:
+    application: armyant-master
+  sessionAffinity: None
+  type: LoadBalancer
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: armyant
+rules:
+- apiGroups: ["*"]
+  resources: ["jobs"]
+  verbs: ["get", "list", "create", "delete"]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: armyant
+subjects:
+- kind: ServiceAccount
+  name: armyant
+  namespace: bizdev-test
+roleRef:
+  kind: ClusterRole
+  name: armyant
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: armyant
+  namespace: bizdev-test
